@@ -3,6 +3,7 @@ import brcypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
+// User Schema
 const userSchema = new Schema(
   {
     avatar: {
@@ -63,6 +64,7 @@ const userSchema = new Schema(
   },
 );
 
+// Hashes the password before saving the user document
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
@@ -70,10 +72,12 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+// Compares the provided password with the stored hashed password
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await brcypt.compare(password, this.password);
 };
 
+// Generates an access token for authentication
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
@@ -86,6 +90,7 @@ userSchema.methods.generateAccessToken = function () {
   );
 };
 
+// Generates a refresh token for session management
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     {
@@ -96,11 +101,12 @@ userSchema.methods.generateRefreshToken = function () {
   );
 };
 
+// Generates a temporary token for password reset or email verification
 userSchema.methods.generateTemporaryToken = function () {
   const unHashedToken = crypto.randomBytes(20).toString("hex");
 
   const hashedToken = crypto
-    .createHash("sha256")
+    .createHash("sha256") 
     .update(unHashedToken)
     .digest("hex");
 

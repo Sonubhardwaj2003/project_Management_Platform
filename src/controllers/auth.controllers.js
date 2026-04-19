@@ -9,6 +9,7 @@ import {
 } from "../utils/mail.js";
 import jwt from "jsonwebtoken";
 
+// This function generates access and refresh tokens for a user, saves the refresh token in the database, and returns both tokens.
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -26,6 +27,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
   }
 };
 
+// This function handles user registration. It checks if a user with the provided email or username already exists, creates a new user, generates an email verification token, sends a verification email, and returns the created user (excluding sensitive fields).
 const registerUser = asyncHandler(async (req, res) => {
   const { email, username, password, role } = req.body;
 
@@ -44,6 +46,7 @@ const registerUser = asyncHandler(async (req, res) => {
     isEmailVerified: false,
   });
 
+  // Generate email verification token
   const { unHashedToken, hashedToken, tokenExpiry } =
     user.generateTemporaryToken();
 
@@ -98,7 +101,7 @@ const login = asyncHandler(async (req, res) => {
   if (!isPasswordValid) {
     throw new ApiError(400, "Invalid credentials");
   }
-
+ 
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
     user._id,
   );
@@ -111,7 +114,8 @@ const login = asyncHandler(async (req, res) => {
     httpOnly: true,
     secure: true,
   };
-
+  
+  // Set the access token and refresh token in HTTP-only cookies and return the logged-in user along with the tokens in the response.
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
@@ -196,6 +200,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
   );
 });
 
+// This function allows users to request a new email verification token if their previous token has expired or if they haven't received the verification email. It checks if the user exists and if their email is already verified, generates a new email verification token, saves it in the database, and sends a new verification email to the user.
 const resendEmailVerification = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user?._id);
 
@@ -228,6 +233,7 @@ const resendEmailVerification = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Mail has been sent to your email ID"));
 });
 
+// This function handles the refreshing of access tokens. It checks for the presence of a refresh token in the request, verifies its validity, checks if it matches the one stored in the database for the user, and if valid, generates new access and refresh tokens, updates the refresh token in the database, and returns the new tokens to the client.
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
@@ -336,6 +342,7 @@ const resetForgotPassword = asyncHandler(async (req, res) => {
   user.forgotPasswordToken = undefined;
 
   user.password = newPassword;
+  // Save the updated user document without running validation to avoid issues with required fields that are not being updated.
   await user.save({ validateBeforeSave: false });
 
   return res

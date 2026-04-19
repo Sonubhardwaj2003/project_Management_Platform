@@ -4,6 +4,7 @@ import { ApiError } from "../utils/api-error.js";
 import { asyncHandler } from "../utils/async-handler.js";
 import jwt from "jsonwebtoken";
 
+// Middleware to verify JWT and authenticate user
 export const verifyJWT = asyncHandler(async (req, res, next) => {
   const token =
     req.cookies?.accessToken ||

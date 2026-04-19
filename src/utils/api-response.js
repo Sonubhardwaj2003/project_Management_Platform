@@ -1,3 +1,4 @@
+// Custom API response class for consistent response formatting across the application
 class ApiResponse {
   constructor(statusCode, data, message = "Success") {
     this.statusCode = statusCode;

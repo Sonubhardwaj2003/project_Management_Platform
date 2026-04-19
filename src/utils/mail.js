@@ -1,6 +1,8 @@
+// Utility functions for sending emails using Mailgen and Nodemailer
 import Mailgen from "mailgen";
 import nodemailer from "nodemailer";
 
+// Sends an email using the provided options, including generating the email content with Mailgen
 const sendEmail = async (options) => {
   const mailGenerator = new Mailgen({
     theme: "default",
@@ -14,6 +16,7 @@ const sendEmail = async (options) => {
 
   const emailHtml = mailGenerator.generate(options.mailgenContent);
 
+  // Create a transporter using Mailtrap SMTP settings from environment variables
   const transporter = nodemailer.createTransport({
     host: process.env.MAILTRAP_SMTP_HOST,
     port: process.env.MAILTRAP_SMTP_PORT,
@@ -23,6 +26,7 @@ const sendEmail = async (options) => {
     },
   });
 
+  // Define the email options, including sender, recipient, subject, and content
   const mail = {
     from: "mail.taskmanager@example.com",
     to: options.email,
@@ -41,6 +45,7 @@ const sendEmail = async (options) => {
   }
 };
 
+// Generates the content for the email verification email
 const emailVerificationMailgenContent = (username, verficationUrl) => {
   return {
     body: {
@@ -61,6 +66,7 @@ const emailVerificationMailgenContent = (username, verficationUrl) => {
   };
 };
 
+// Generates the content for the forgot password email
 const forgotPasswordMailgenContent = (username, passwordResetUrl) => {
   return {
     body: {

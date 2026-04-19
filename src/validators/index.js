@@ -1,5 +1,7 @@
 import { body } from "express-validator";
 import { AvailableUserRole } from "../utils/constants.js";
+
+// Validators for user registration, login, password change, forgot password, reset password, project creation, and adding members to a project
 const userRegisterValidator = () => {
   return [
     body("email")
