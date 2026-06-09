@@ -51,14 +51,18 @@ const userResetForgotPasswordValidator = () => {
   return [body("newPassword").notEmpty().withMessage("Password is required")];
 };
 
-const createProjectValidator = () => {
+/*const createProjectValidator = () => {
   return [
     body("name").notEmpty().withMessage("Name is required"),
     body("description").optional(),
   ];
-};
+};*/
+const createProjectValidator = () => [
+  body("name").notEmpty().withMessage("Name is required"),
+  body("description").notEmpty().withMessage("Description is required"),
+];
 
-const addMembertoProjectValidator = () => {
+/*const addMembertoProjectValidator = () => {
   return [
     body("email")
       .trim()
@@ -72,7 +76,11 @@ const addMembertoProjectValidator = () => {
       .isIn(AvailableUserRole)
       .withMessage("Role is invalid"),
   ];
-};
+};*/
+const addMembertoProjectValidator = () => [
+  body("email").isEmail().withMessage("Valid email required"),
+  body("role").notEmpty().withMessage("Role is required"),
+];
 
 export {
   userRegisterValidator,

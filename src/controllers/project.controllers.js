@@ -7,14 +7,17 @@ import { asyncHandler } from "../utils/async-handler.js";
 import mongoose from "mongoose";
 import { AvailableUserRole, UserRolesEnum } from "../utils/constants.js";
 
+// Get all projects for a user
 const getProjects = asyncHandler(async (req, res) => {
   const projects = await ProjectMember.aggregate([
     {
+      // Match projects where the user is a member
       $match: {
         user: new mongoose.Types.ObjectId(req.user._id),
       },
     },
     {
+      // Lookup to get project details for the projects the user is a member of to display in the project list
       $lookup: {
         from: "projects",
         localField: "projects",
@@ -22,6 +25,7 @@ const getProjects = asyncHandler(async (req, res) => {
         as: "projects",
         pipeline: [
           {
+            // Lookup to get the number of members in each project for the projects the user is a member of to display in the project list
             $lookup: {
               from: "projectmembers",
               localField: "_id",
@@ -39,6 +43,7 @@ const getProjects = asyncHandler(async (req, res) => {
         ],
       },
     },
+    // Unwind the projects array to get individual project details along with the role of the user in that project
     {
       $unwind: "$project",
     },
@@ -63,6 +68,7 @@ const getProjects = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, projects, "Projects fetched successfully"));
 });
 
+// Get a project by id
 const getProjectById = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
   const project = await Project.findById(projectId);
@@ -76,6 +82,7 @@ const getProjectById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, project, "Project fetched successfully"));
 });
 
+// Create a new project
 const createProject = asyncHandler(async (req, res) => {
   const { name, description } = req.body;
 
@@ -96,6 +103,7 @@ const createProject = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, project, "Project created Successfully"));
 });
 
+// Update a project
 const updateProject = asyncHandler(async (req, res) => {
   const { name, description } = req.body;
   const { projectId } = req.params;
@@ -117,6 +125,7 @@ const updateProject = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, project, "Project updated successfully"));
 });
 
+// Delete a project
 const deleteProject = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
 
@@ -129,6 +138,7 @@ const deleteProject = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, project, "Project deleted successfully"));
 });
 
+// Add members to a project
 const addMembersToProject = asyncHandler(async (req, res) => {
   const { email, role } = req.body;
   const { projectId } = req.params;
@@ -150,6 +160,7 @@ const addMembersToProject = asyncHandler(async (req, res) => {
     },
     {
       new: true,
+      // Create the document if it doesn't exist
       upsert: true,
     },
   );
@@ -159,6 +170,7 @@ const addMembersToProject = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, {}, "Project member added successfully"));
 });
 
+// Get all members of a project
 const getProjectMembers = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
   const project = await Project.findById(req.params);
@@ -216,6 +228,7 @@ const getProjectMembers = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, projectMembers, "Project members fetched"));
 });
 
+// Update a project member role
 const updateMemberRole = asyncHandler(async (req, res) => {
   const { projectId, userId } = req.params;
   const { newRole } = req.body;
@@ -256,6 +269,7 @@ const updateMemberRole = asyncHandler(async (req, res) => {
     );
 });
 
+// Delete a project member
 const deleteMember = asyncHandler(async (req, res) => {
   const { projectId, userId } = req.params;
 
